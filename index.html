@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thời gian biểu - Smart Schedule</title>
     <style>
+        /* Giữ nguyên toàn bộ CSS như trước */
         * {
             margin: 0;
             padding: 0;
@@ -877,7 +878,7 @@
             // Group events by subject for legend
             const subjects = new Set();
             
-            // First, we need to group events by day and time to avoid overlaps
+            // First, group events by day
             const dayEvents = Array(7).fill().map(() => []);
             
             events.forEach(event => {
@@ -885,7 +886,7 @@
                 dayEvents[event.day - 1].push(event);
             });
             
-            // For each day, sort events by start time and render them
+            // For each day, process events to handle overlaps
             for (let day = 1; day <= 7; day++) {
                 const dayIndex = day - 1;
                 const eventsForDay = dayEvents[dayIndex];
@@ -897,7 +898,42 @@
                     return aTime - bTime;
                 });
                 
-                // Render events for this day
+                // Create a structure to track overlapping events
+                const timeSlots = Array(24).fill().map(() => []);
+                
+                // Assign events to time slots
+                eventsForDay.forEach(event => {
+                    const startHour = parseInt(event.startTime.split(':')[0]);
+                    const startMinute = parseInt(event.startTime.split(':')[1]);
+                    const endHour = parseInt(event.endTime.split(':')[0]);
+                    const endMinute = parseInt(event.endTime.split(':')[1]);
+                    
+                    // Calculate the duration in hours (rounded up)
+                    let duration = endHour - startHour;
+                    if (endMinute > 0) duration += 1;
+                    
+                    // Find the maximum overlap count for this event's time range
+                    let maxOverlaps = 0;
+                    for (let h = startHour; h < startHour + duration; h++) {
+                        if (h < 24) {
+                            maxOverlaps = Math.max(maxOverlaps, timeSlots[h].length);
+                        }
+                    }
+                    
+                    // Assign the event to all time slots it spans
+                    for (let h = startHour; h < startHour + duration; h++) {
+                        if (h < 24) {
+                            // Add the event to this hour's slot with its position info
+                            timeSlots[h].push({
+                                event: event,
+                                position: maxOverlaps,
+                                totalSlots: maxOverlaps + 1
+                            });
+                        }
+                    }
+                });
+                
+                // Now render events for this day
                 eventsForDay.forEach(event => {
                     const startHour = parseInt(event.startTime.split(':')[0]);
                     const startMinute = parseInt(event.startTime.split(':')[1]);
@@ -909,10 +945,47 @@
                     
                     const dayColumn = document.querySelector(`.day-column[data-hour="${startHour}"][data-day="${day}"]`);
                     if (dayColumn) {
+                        // Find the maximum number of overlapping events in this time range
+                        let maxOverlaps = 0;
+                        for (let h = startHour; h < endHour + (endMinute > 0 ? 1 : 0); h++) {
+                            if (h < 24) {
+                                maxOverlaps = Math.max(maxOverlaps, timeSlots[h].filter(slot => 
+                                    slot.event.id === event.id || 
+                                    isOverlapping(event, slot.event)
+                                ).length);
+                            }
+                        }
+                        
+                        // Find this event's position in the overlapping events
+                        let position = 0;
+                        for (let h = startHour; h < endHour + (endMinute > 0 ? 1 : 0); h++) {
+                            if (h < 24) {
+                                const eventsAtThisHour = timeSlots[h].filter(slot => 
+                                    slot.event.id === event.id || 
+                                    isOverlapping(event, slot.event)
+                                );
+                                
+                                const thisEventIndex = eventsAtThisHour.findIndex(slot => slot.event.id === event.id);
+                                if (thisEventIndex > -1) {
+                                    position = Math.max(position, thisEventIndex);
+                                }
+                            }
+                        }
+                        
                         const eventEl = document.createElement('div');
                         eventEl.className = 'event';
                         eventEl.style.top = `${startOffset}px`;
                         eventEl.style.height = `${duration}px`;
+                        
+                        // Calculate width and position based on overlaps
+                        if (maxOverlaps > 1) {
+                            const widthPercent = 100 / maxOverlaps;
+                            eventEl.style.width = `calc(${widthPercent}% - 8px)`;
+                            eventEl.style.left = `calc(${position * widthPercent}% + 4px)`;
+                        } else {
+                            eventEl.style.left = '4px';
+                            eventEl.style.right = '4px';
+                        }
                         
                         const color2 = adjustColor(event.color, 20);
                         eventEl.style.background = `linear-gradient(135deg, ${event.color}, ${color2})`;
@@ -930,6 +1003,17 @@
             
             // Update legend
             updateLegend(subjects);
+        }
+
+        function isOverlapping(event1, event2) {
+            if (event1.day !== event2.day) return false;
+            
+            const start1 = new Date(`1970-01-01T${event1.startTime}`);
+            const end1 = new Date(`1970-01-01T${event1.endTime}`);
+            const start2 = new Date(`1970-01-01T${event2.startTime}`);
+            const end2 = new Date(`1970-01-01T${event2.endTime}`);
+            
+            return start1 < end2 && start2 < end1;
         }
 
         function adjustColor(color, percent) {
@@ -1293,12 +1377,11 @@
         function downloadCapture() {
             // Create a temporary container for the full capture
             const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'fixed';
-            tempContainer.style.left = '0';
+            // --- UPDATED STYLING TO FIX CAPTURE ---
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px'; // Move it way off-screen
             tempContainer.style.top = '0';
             tempContainer.style.width = '1200px'; // Match the width of the captureElement
-            tempContainer.style.zIndex = '-1000';
-            tempContainer.style.visibility = 'hidden';
 
             // Clone the capture preview content
             const captureContent = document.getElementById('capturePreview').cloneNode(true);
@@ -1325,12 +1408,11 @@
         function shareCapture() {
             // Create a temporary container for the full capture
             const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'fixed';
-            tempContainer.style.left = '0';
+            // --- UPDATED STYLING TO FIX CAPTURE ---
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px'; // Move it way off-screen
             tempContainer.style.top = '0';
             tempContainer.style.width = '1200px'; // Match the width of the captureElement
-            tempContainer.style.zIndex = '-1000';
-            tempContainer.style.visibility = 'hidden';
 
             // Clone the capture preview content
             const captureContent = document.getElementById('capturePreview').cloneNode(true);
