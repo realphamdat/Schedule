@@ -257,6 +257,8 @@
             font-size: 1.5rem;
             font-weight: 600;
             color: var(--primary-dark);
+            text-align: center;
+            width: 100%;
         }
 
         .close-btn {
@@ -272,6 +274,9 @@
             align-items: center;
             justify-content: center;
             border-radius: 8px;
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
         }
 
         .close-btn:hover {
@@ -393,7 +398,8 @@
 
         /* Capture modal styles */
         .capture-modal .modal-content {
-            max-width: 800px;
+            max-width: 90%;
+            width: 90%;
             text-align: center;
         }
 
@@ -402,8 +408,9 @@
             border-radius: 12px;
             padding: 1rem;
             margin: 1rem 0;
-            max-height: 50vh;
+            max-height: 70vh;
             overflow: auto;
+            width: 100%;
         }
 
         .capture-actions {
@@ -680,6 +687,22 @@
             .time-slot {
                 padding: 0.35rem 0.1rem;
                 font-size: 0.6rem;
+            }
+        }
+
+        /* Print and capture styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .schedule-container, .schedule-container * {
+                visibility: visible;
+            }
+            .schedule-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
             }
         }
     </style>
@@ -1196,9 +1219,20 @@
                         parseInt(e.endTime.split(':')[0]) > hour
                     );
                     
-                    if (hourEvents.length > 0) {
+                    // Group events by title to avoid duplicates
+                    const uniqueEvents = [];
+                    const seenTitles = new Set();
+                    
+                    hourEvents.forEach(event => {
+                        if (!seenTitles.has(event.title)) {
+                            seenTitles.add(event.title);
+                            uniqueEvents.push(event);
+                        }
+                    });
+                    
+                    if (uniqueEvents.length > 0) {
                         let eventContent = '';
-                        hourEvents.forEach(event => {
+                        uniqueEvents.forEach(event => {
                             eventContent += `
                                 <div style="background: ${event.color}; color: white; padding: 0.4rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 0.3rem;">
                                     <div style="font-weight: bold;">${event.title}</div>
@@ -1231,16 +1265,55 @@
         }
 
         function downloadCapture() {
-            html2canvas(document.getElementById('capturePreview')).then(canvas => {
+            // Create a temporary container for the full capture
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.top = '-9999px';
+            tempContainer.style.width = '800px';
+            document.body.appendChild(tempContainer);
+            
+            // Clone the capture preview content
+            const captureContent = document.getElementById('capturePreview').cloneNode(true);
+            tempContainer.appendChild(captureContent);
+            
+            html2canvas(tempContainer, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                width: tempContainer.offsetWidth,
+                height: tempContainer.offsetHeight
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `thoi-gian-bieu-${new Date().toISOString().split('T')[0]}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
+                
+                // Clean up
+                document.body.removeChild(tempContainer);
             });
         }
 
         function shareCapture() {
-            html2canvas(document.getElementById('capturePreview')).then(canvas => {
+            // Create a temporary container for the full capture
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.top = '-9999px';
+            tempContainer.style.width = '800px';
+            document.body.appendChild(tempContainer);
+            
+            // Clone the capture preview content
+            const captureContent = document.getElementById('capturePreview').cloneNode(true);
+            tempContainer.appendChild(captureContent);
+            
+            html2canvas(tempContainer, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                width: tempContainer.offsetWidth,
+                height: tempContainer.offsetHeight
+            }).then(canvas => {
                 canvas.toBlob(blob => {
                     if (navigator.share) {
                         const file = new File([blob], `thoi-gian-bieu-${new Date().toISOString().split('T')[0]}.png`, { type: 'image/png' });
@@ -1256,6 +1329,9 @@
                         alert('Trình duyệt của bạn không hỗ trợ chia sẻ file. Đã tự động tải ảnh xuống.');
                         downloadCapture();
                     }
+                    
+                    // Clean up
+                    document.body.removeChild(tempContainer);
                 });
             });
         }
