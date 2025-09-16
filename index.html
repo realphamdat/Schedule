@@ -28,6 +28,7 @@
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
+            --hour-h: clamp(38px, 6.5vh, 64px);
         }
 
         body {
@@ -113,6 +114,8 @@
             margin-bottom: 2rem;
             border-radius: 20px;
             box-shadow: 0 10px 40px var(--shadow);
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
 
         .schedule-container {
@@ -145,6 +148,10 @@
             display: grid;
             grid-template-columns: 90px repeat(7, 1fr);
             position: relative;
+        }
+
+        .time-slot, .day-column {
+            min-height: var(--hour-h);
         }
 
         .time-slot {
@@ -408,6 +415,22 @@
             max-height: 70vh;
             overflow: auto;
             width: 100%;
+        }
+
+        .capture-preview-content {
+            aspect-ratio: 1 / 1;
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
+        .capture-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
         }
 
         .capture-actions {
@@ -686,6 +709,25 @@
                 font-size: 0.6rem;
             }
         }
+
+        /* Preview frame styles */
+        @media print {
+            .capture-preview {
+                border: none !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+    <style id="capture-reset">
+        /* Khi gắn class .capture-mode vào <body>, tắt mọi hiệu ứng làm mờ/làm tối */
+        body.capture-mode,
+        body.capture-mode * {
+            filter: none !important;
+            backdrop-filter: none !important;
+            opacity: 1 !important;
+            transform: none !important;   /* loại scale/zoom gây mềm chữ */
+        }
     </style>
 </head>
 <body>
@@ -807,8 +849,10 @@
                 <h2 class="modal-title">Chụp và chia sẻ lịch</h2>
                 <button class="close-btn" onclick="closeCaptureModal()">✕</button>
             </div>
-            <div class="capture-preview" id="capturePreview">
-                <!-- Preview will be inserted here -->
+            <div class="capture-preview">
+                <div class="capture-preview-content" id="capturePreviewContent">
+                    <!-- Preview will be inserted here -->
+                </div>
             </div>
             <div class="capture-actions">
                 <button class="btn btn-secondary" onclick="downloadCapture()">📥 Tải ảnh</button>
@@ -1232,92 +1276,144 @@
             document.getElementById('captureModal').classList.remove('active');
         }
 
-        function generateCapturePreview() {
-            const preview = document.getElementById('capturePreview');
-            preview.innerHTML = '';
-            
-            // Create a clone of the schedule container for better capture
-            const scheduleContainer = document.querySelector('.schedule-container');
-            const clone = scheduleContainer.cloneNode(true);
-            
-            // Create a wrapper for the capture
-            const wrapper = document.createElement('div');
-            wrapper.style.background = 'white';
-            wrapper.style.padding = '2rem';
-            wrapper.style.borderRadius = '12px';
-            wrapper.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.1)';
-            wrapper.style.maxWidth = '100%';
-            wrapper.style.overflow = 'auto';
-            
-            // Add title
-            const title = document.createElement('h3');
+        /** Helper: chụp DOM thật (.schedule-container + legend) rồi vẽ vào canvas vuông 1:1 */
+        async function buildSquareCanvasFromDom() {
+            // 0) Bật chế độ "capture" để vô hiệu filter/opacity/transform toàn trang
+            document.body.classList.add('capture-mode');
+            await (document.fonts?.ready ?? Promise.resolve()); // chờ font sẵn sàng để render nét
+
+            const schedule = document.querySelector('.schedule-container');
+            const legend   = document.getElementById('legend');
+
+            // 1) Dựng stage offscreen (không chịu tác động của layout hiện tại)
+            const stage = document.createElement('div');
+            stage.className = 'capture-stage';
+            Object.assign(stage.style, {
+                position: 'fixed',
+                left: '-10000px',
+                top: '0',
+                background: '#fff',
+                padding: '24px',
+                borderRadius: '12px',
+                boxSizing: 'border-box',
+                width: (schedule.scrollWidth + 48) + 'px',
+                zIndex: '2147483647',
+            });
+            document.body.appendChild(stage);
+
+            // (tuỳ chọn) tiêu đề
+            const title = document.createElement('h2');
             title.textContent = 'Thời gian biểu của tôi';
-            title.style.textAlign = 'center';
-            title.style.marginBottom = '1.5rem';
-            title.style.color = '#1a1a1a';
-            title.style.fontSize = '24px';
-            title.style.fontWeight = 'bold';
-            wrapper.appendChild(title);
-            
-            // Add the cloned schedule
-            wrapper.appendChild(clone);
-            
-            // Add current date and time
-            const now = new Date();
-            const dateTimeInfo = document.createElement('div');
-            dateTimeInfo.style.textAlign = 'center';
-            dateTimeInfo.style.marginTop = '1.5rem';
-            dateTimeInfo.style.color = '#6b7280';
-            dateTimeInfo.style.fontSize = '0.9rem';
-            dateTimeInfo.textContent = `Lịch được tạo vào: ${now.toLocaleDateString('vi-VI')} ${now.toLocaleTimeString('vi-VI')}`;
-            
-            wrapper.appendChild(dateTimeInfo);
-            preview.appendChild(wrapper);
+            Object.assign(title.style, {textAlign: 'center', margin: '0 0 12px 0', color: '#1a1a1a', fontWeight: '700'});
+            stage.appendChild(title);
+
+            // legend (nếu đang hiển thị)
+            if (legend && legend.style.display !== 'none') {
+                const legendClone = legend.cloneNode(true);
+                legendClone.style.margin = '0 0 12px 0';
+                stage.appendChild(legendClone);
+            }
+
+            // lịch (clone DOM thật để giữ nguyên CSS)
+            const scheduleClone = schedule.cloneNode(true);
+            stage.appendChild(scheduleClone);
+
+            // 2) Chụp với scale cao, phụ thuộc DPI thiết bị -> ảnh sắc nét
+            const dpiScale = Math.max(2, Math.ceil(window.devicePixelRatio)) * 2; // 2–4x
+            const stageCanvas = await html2canvas(stage, {
+                scale: dpiScale,
+                logging: false,
+                backgroundColor: '#ffffff',
+                useCORS: true
+            });
+
+            // 3) Ép vuông 1:1 (letterbox, không cắt nội dung)
+            const size = Math.max(stageCanvas.width, stageCanvas.height);
+            const sq = document.createElement('canvas');
+            sq.width = size;
+            sq.height = size;
+
+            const ctx = sq.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            const margin = Math.round(size * 0.04);
+            const avail = size - margin * 2;
+            const s = Math.min(avail / stageCanvas.width, avail / stageCanvas.height);
+            const w = Math.round(stageCanvas.width * s);
+            const h = Math.round(stageCanvas.height * s);
+            const dx = Math.round((size - w) / 2);
+            const dy = Math.round((size - h) / 2);
+            ctx.drawImage(stageCanvas, dx, dy, w, h);
+
+            // 4) Dọn dẹp & tắt chế độ capture
+            stage.remove();
+            document.body.classList.remove('capture-mode');
+
+            return sq;
         }
 
-        function downloadCapture() {
-            const preview = document.getElementById('capturePreview');
-            
-            html2canvas(preview, {
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `thoi-gian-bieu-${new Date().toISOString().split('T')[0]}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
+        /** Preview: dùng chính ảnh vuông 1:1 đã build */
+        async function generateCapturePreview() {
+            const previewContent = document.getElementById('capturePreviewContent');
+            previewContent.innerHTML = 'Đang dựng ảnh…';
+            const canvas = await buildSquareCanvasFromDom();
+            lastCaptureDataUrl = canvas.toDataURL('image/png');
+
+            const img = new Image();
+            img.alt = 'Preview thời gian biểu (1:1)';
+            img.src = lastCaptureDataUrl;
+            previewContent.innerHTML = '';
+            previewContent.appendChild(img);
         }
 
-        function shareCapture() {
-            const preview = document.getElementById('capturePreview');
-            
-            html2canvas(preview, {
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            }).then(canvas => {
-                canvas.toBlob(blob => {
-                    if (navigator.share) {
-                        const file = new File([blob], `thoi-gian-bieu-${new Date().toISOString().split('T')[0]}.png`, { type: 'image/png' });
-                        navigator.share({
-                            title: 'Thời gian biểu của tôi',
-                            text: 'Xem thời gian biểu của tôi!',
-                            files: [file]
-                        }).catch(err => {
-                            console.error('Lỗi khi chia sẻ:', err);
-                            downloadCapture(); // Fallback to download
-                        });
-                    } else {
-                        alert('Trình duyệt của bạn không hỗ trợ chia sẻ file. Đã tự động tải ảnh xuống.');
-                        downloadCapture();
-                    }
-                });
-            });
+        /** Tải ảnh: xuất đúng ảnh preview */
+        async function downloadCapture() {
+            if (!lastCaptureDataUrl) {
+                const canvas = await buildSquareCanvasFromDom();
+                lastCaptureDataUrl = canvas.toDataURL('image/png');
+            }
+            const a = document.createElement('a');
+            a.download = `thoi-gian-bieu-${new Date().toISOString().slice(0,10)}.png`;
+            a.href = lastCaptureDataUrl;
+            a.click();
         }
+
+        /** Chia sẻ: dùng Web Share nếu có, fallback tải xuống */
+        async function shareCapture() {
+            if (!lastCaptureDataUrl) {
+                const canvas = await buildSquareCanvasFromDom();
+                lastCaptureDataUrl = canvas.toDataURL('image/png');
+            }
+            const res = await fetch(lastCaptureDataUrl);
+            const blob = await res.blob();
+            const file = new File([blob], `thoi-gian-bieu-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
+
+            if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                try { await navigator.share({ title: 'Thời gian biểu của tôi', files: [file] }); }
+                catch { /* người dùng hủy – bỏ qua */ }
+            } else {
+                const a = document.createElement('a');
+                a.download = file.name;
+                a.href = lastCaptureDataUrl;
+                a.click();
+            }
+        }
+
+        function setShortDayLabels() {
+            const labels = ['Giờ','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','Chủ nhật'];
+            const shortL = ['Giờ','T2','T3','T4','T5','T6','T7','CN'];
+            const header = document.querySelectorAll('.schedule-header > div');
+            if (header.length === 8) {
+                const useShort = window.innerWidth < 520; // ngưỡng tuỳ chỉnh
+                for (let i = 0; i < 8; i++) header[i].textContent = useShort ? shortL[i] : labels[i];
+            }
+        }
+
+        window.addEventListener('resize', setShortDayLabels);
+        document.addEventListener('DOMContentLoaded', setShortDayLabels);
 
         // Close modal when clicking outside
         document.getElementById('modal').addEventListener('click', (e) => {
