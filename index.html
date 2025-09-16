@@ -1236,13 +1236,19 @@
             const preview = document.getElementById('capturePreview');
             preview.innerHTML = '';
             
-            // Create a styled version of the schedule for capture
-            const captureElement = document.createElement('div');
-            captureElement.style.background = 'white';
-            captureElement.style.padding = '2rem';
-            captureElement.style.borderRadius = '12px';
-            captureElement.style.width = '1200px'; // Fixed width for consistent capture
-
+            // Create a clone of the schedule container for better capture
+            const scheduleContainer = document.querySelector('.schedule-container');
+            const clone = scheduleContainer.cloneNode(true);
+            
+            // Create a wrapper for the capture
+            const wrapper = document.createElement('div');
+            wrapper.style.background = 'white';
+            wrapper.style.padding = '2rem';
+            wrapper.style.borderRadius = '12px';
+            wrapper.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.1)';
+            wrapper.style.maxWidth = '100%';
+            wrapper.style.overflow = 'auto';
+            
             // Add title
             const title = document.createElement('h3');
             title.textContent = 'Thời gian biểu của tôi';
@@ -1250,116 +1256,11 @@
             title.style.marginBottom = '1.5rem';
             title.style.color = '#1a1a1a';
             title.style.fontSize = '24px';
-            captureElement.appendChild(title);
+            title.style.fontWeight = 'bold';
+            wrapper.appendChild(title);
             
-            // Create a simplified schedule table
-            const table = document.createElement('table');
-            table.style.width = '100%';
-            table.style.borderCollapse = 'collapse';
-            table.style.fontFamily = 'sans-serif';
-            table.style.tableLayout = 'fixed';
-            
-            // Create header row
-            const headerRow = document.createElement('tr');
-            headerRow.style.background = '#1a1a1a';
-            headerRow.style.color = 'white';
-            
-            const timeHeader = document.createElement('th');
-            timeHeader.textContent = 'Giờ';
-            timeHeader.style.padding = '0.75rem';
-            timeHeader.style.border = '1px solid #2d2d2d';
-            timeHeader.style.width = '80px';
-            headerRow.appendChild(timeHeader);
-            
-            const days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
-            days.forEach(day => {
-                const dayHeader = document.createElement('th');
-                dayHeader.textContent = day;
-                dayHeader.style.padding = '0.75rem';
-                dayHeader.style.border = '1px solid #2d2d2d';
-                headerRow.appendChild(dayHeader);
-            });
-            
-            table.appendChild(headerRow);
-            
-            // We need to create an array for each day to track events and their rowspans
-            const dayEvents = Array(7).fill().map(() => Array(24).fill(null));
-            
-            // Preprocess events to calculate rowspans and avoid duplicates
-            events.forEach(event => {
-                const dayIndex = event.day - 1;
-                const startHour = parseInt(event.startTime.split(':')[0]);
-                const endHour = parseInt(event.endTime.split(':')[0]);
-                const startMinute = parseInt(event.startTime.split(':')[1]);
-                const endMinute = parseInt(event.endTime.split(':')[1]);
-                
-                // Calculate duration in hours (rounded up to the nearest hour)
-                let duration = endHour - startHour;
-                if (endMinute > 0) duration += 1;
-                
-                // Mark the hours this event spans
-                for (let h = startHour; h < startHour + duration; h++) {
-                    if (h < 24) {
-                        // Only mark the first hour with the event, others will be skipped
-                        if (h === startHour) {
-                            dayEvents[dayIndex][h] = {
-                                event: event,
-                                rowspan: duration
-                            };
-                        } else {
-                            dayEvents[dayIndex][h] = { skipped: true };
-                        }
-                    }
-                }
-            });
-            
-            // Create rows for each hour
-            for (let hour = 0; hour < 24; hour++) {
-                const row = document.createElement('tr');
-                
-                // Time cell
-                const timeCell = document.createElement('td');
-                timeCell.textContent = `${hour.toString().padStart(2, '0')}:00`;
-                timeCell.style.padding = '0.5rem';
-                timeCell.style.border = '1px solid #e5e7eb';
-                timeCell.style.background = '#f5f5f5';
-                timeCell.style.fontWeight = '500';
-                timeCell.style.textAlign = 'center';
-                row.appendChild(timeCell);
-                
-                // Cells for each day
-                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-                    const cell = document.createElement('td');
-                    cell.style.padding = '0.5rem';
-                    cell.style.border = '1px solid #e5e7eb';
-                    cell.style.minHeight = '40px';
-                    cell.style.verticalAlign = 'top';
-                    
-                    const eventData = dayEvents[dayIndex][hour];
-                    if (eventData) {
-                        if (eventData.skipped) {
-                            // This cell is part of a previous event's rowspan, so skip it
-                            continue;
-                        } else {
-                            // This is the start of an event
-                            const event = eventData.event;
-                            cell.rowSpan = eventData.rowspan;
-                            cell.style.background = event.color;
-                            cell.style.color = 'white';
-                            cell.style.borderRadius = '6px';
-                            cell.innerHTML = `
-                                <div style="font-weight: bold; margin-bottom: 0.25rem;">${event.title}</div>
-                                <div style="font-size: 0.85rem;">${event.startTime} - ${event.endTime}</div>
-                            `;
-                        }
-                    }
-                    row.appendChild(cell);
-                }
-                
-                table.appendChild(row);
-            }
-            
-            captureElement.appendChild(table);
+            // Add the cloned schedule
+            wrapper.appendChild(clone);
             
             // Add current date and time
             const now = new Date();
@@ -1370,61 +1271,34 @@
             dateTimeInfo.style.fontSize = '0.9rem';
             dateTimeInfo.textContent = `Lịch được tạo vào: ${now.toLocaleDateString('vi-VI')} ${now.toLocaleTimeString('vi-VI')}`;
             
-            captureElement.appendChild(dateTimeInfo);
-            preview.appendChild(captureElement);
+            wrapper.appendChild(dateTimeInfo);
+            preview.appendChild(wrapper);
         }
 
         function downloadCapture() {
-            // Create a temporary container for the full capture
-            const tempContainer = document.createElement('div');
-            // --- UPDATED STYLING TO FIX CAPTURE ---
-            tempContainer.style.position = 'absolute';
-            tempContainer.style.left = '-9999px'; // Move it way off-screen
-            tempContainer.style.top = '0';
-            tempContainer.style.width = '1200px'; // Match the width of the captureElement
-
-            // Clone the capture preview content
-            const captureContent = document.getElementById('capturePreview').cloneNode(true);
-            tempContainer.appendChild(captureContent);
-            document.body.appendChild(tempContainer);
-
-            html2canvas(tempContainer, {
+            const preview = document.getElementById('capturePreview');
+            
+            html2canvas(preview, {
                 scale: 2,
                 logging: false,
                 useCORS: true,
-                width: tempContainer.offsetWidth,
-                height: tempContainer.offsetHeight
+                backgroundColor: '#ffffff'
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `thoi-gian-bieu-${new Date().toISOString().split('T')[0]}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-
-                // Clean up
-                document.body.removeChild(tempContainer);
             });
         }
 
         function shareCapture() {
-            // Create a temporary container for the full capture
-            const tempContainer = document.createElement('div');
-            // --- UPDATED STYLING TO FIX CAPTURE ---
-            tempContainer.style.position = 'absolute';
-            tempContainer.style.left = '-9999px'; // Move it way off-screen
-            tempContainer.style.top = '0';
-            tempContainer.style.width = '1200px'; // Match the width of the captureElement
-
-            // Clone the capture preview content
-            const captureContent = document.getElementById('capturePreview').cloneNode(true);
-            tempContainer.appendChild(captureContent);
-            document.body.appendChild(tempContainer);
-
-            html2canvas(tempContainer, {
+            const preview = document.getElementById('capturePreview');
+            
+            html2canvas(preview, {
                 scale: 2,
                 logging: false,
                 useCORS: true,
-                width: tempContainer.offsetWidth,
-                height: tempContainer.offsetHeight
+                backgroundColor: '#ffffff'
             }).then(canvas => {
                 canvas.toBlob(blob => {
                     if (navigator.share) {
@@ -1441,9 +1315,6 @@
                         alert('Trình duyệt của bạn không hỗ trợ chia sẻ file. Đã tự động tải ảnh xuống.');
                         downloadCapture();
                     }
-
-                    // Clean up
-                    document.body.removeChild(tempContainer);
                 });
             });
         }
