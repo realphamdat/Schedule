@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedule</title>
     <style>
-        /* Giữ nguyên toàn bộ CSS như trước */
         * {
             margin: 0;
             padding: 0;
@@ -387,20 +386,6 @@
             background: #dc2626;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-secondary);
-        }
-
-        .empty-state svg {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        /* Capture modal styles */
         .capture-modal .modal-content {
             max-width: 90%;
             width: 90%;
@@ -440,54 +425,11 @@
             margin-top: 1.5rem;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         .legend {
             display: flex;
@@ -517,243 +459,85 @@
             border-radius: 4px;
         }
 
-        /* Responsive design improvements */
-        @media (max-width: 1200px) {
-            .container {
-                padding: 1.5rem;
-            }
-        }
-
+        @media (max-width: 1200px) { .container { padding: 1.5rem; } }
         @media (max-width: 992px) {
-            .schedule-header, .schedule-body {
-                grid-template-columns: 80px repeat(7, 1fr);
-            }
-            
-            .time-slot {
-                padding: 0.6rem 0.4rem;
-                font-size: 0.85rem;
-            }
+            .schedule-header, .schedule-body { grid-template-columns: 80px repeat(7, 1fr); }
+            .time-slot { padding: 0.6rem 0.4rem; font-size: 0.85rem; }
         }
-
         @media (max-width: 868px) {
-            .schedule-header, .schedule-body {
-                grid-template-columns: 70px repeat(7, 1fr);
-            }
-            
-            .schedule-header > div {
-                padding: 1rem 0.4rem;
-                font-size: 0.9rem;
-            }
-            
-            .time-slot {
-                padding: 0.5rem 0.3rem;
-                font-size: 0.8rem;
-            }
+            .schedule-header, .schedule-body { grid-template-columns: 70px repeat(7, 1fr); }
+            .schedule-header > div { padding: 1rem 0.4rem; font-size: 0.9rem; }
+            .time-slot { padding: 0.5rem 0.3rem; font-size: 0.8rem; }
         }
-
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .controls {
-                gap: 0.5rem;
-            }
-            
-            .btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
-            }
-
-            .schedule-header, .schedule-body {
-                grid-template-columns: 65px repeat(7, 1fr);
-            }
-
-            .schedule-header > div {
-                padding: 0.9rem 0.3rem;
-                font-size: 0.85rem;
-            }
-
-            .time-slot {
-                padding: 0.5rem 0.25rem;
-                font-size: 0.75rem;
-            }
-
-            .event {
-                font-size: 0.75rem;
-                padding: 0.35rem;
-            }
-
-            .modal-content {
-                padding: 1.5rem;
-            }
-
-            .color-picker {
-                gap: 0.4rem;
-            }
-
-            .color-option {
-                width: 35px;
-                height: 35px;
-            }
-
-            .legend {
-                gap: 1rem;
-                padding: 0.75rem;
-            }
+            .container { padding: 1rem; }
+            h1 { font-size: 2rem; }
+            .controls { gap: 0.5rem; }
+            .btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+            .schedule-header, .schedule-body { grid-template-columns: 65px repeat(7, 1fr); }
+            .schedule-header > div { padding: 0.9rem 0.3rem; font-size: 0.85rem; }
+            .time-slot { padding: 0.5rem 0.25rem; font-size: 0.75rem; }
+            .event { font-size: 0.75rem; padding: 0.35rem; }
+            .modal-content { padding: 1.5rem; }
+            .color-picker { gap: 0.4rem; }
+            .color-option { width: 35px; height: 35px; }
+            .legend { gap: 1rem; padding: 0.75rem; }
         }
-
         @media (max-width: 576px) {
-            header {
-                margin-bottom: 2rem;
-            }
-            
-            h1 {
-                font-size: 1.75rem;
-            }
-            
-            .subtitle {
-                font-size: 1rem;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .btn {
-                justify-content: center;
-            }
-            
-            .modal-content {
-                padding: 1.25rem;
-                width: 95%;
-            }
-            
-            .color-picker {
-                justify-content: center;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .legend {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-            
-            .schedule-header, .schedule-body {
-                grid-template-columns: 60px repeat(7, 1fr);
-            }
-            
-            .schedule-header > div {
-                padding: 0.8rem 0.2rem;
-                font-size: 0.8rem;
-            }
-            
-            .time-slot {
-                padding: 0.45rem 0.2rem;
-                font-size: 0.7rem;
-            }
+            header { margin-bottom: 2rem; }
+            h1 { font-size: 1.75rem; }
+            .subtitle { font-size: 1rem; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .btn { justify-content: center; }
+            .modal-content { padding: 1.25rem; width: 95%; }
+            .color-picker { justify-content: center; }
+            .action-buttons { flex-direction: column; }
+            .legend { flex-direction: column; gap: 0.75rem; }
+            .schedule-header, .schedule-body { grid-template-columns: 60px repeat(7, 1fr); }
+            .schedule-header > div { padding: 0.8rem 0.2rem; font-size: 0.8rem; }
+            .time-slot { padding: 0.45rem 0.2rem; font-size: 0.7rem; }
         }
-
         @media (max-width: 480px) {
-            .container {
-                padding: 0.75rem;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .schedule-header, .schedule-body {
-                grid-template-columns: 55px repeat(7, 1fr);
-            }
-            
-            .schedule-header > div {
-                padding: 0.7rem 0.15rem;
-                font-size: 0.75rem;
-            }
-            
-            .time-slot {
-                padding: 0.4rem 0.15rem;
-                font-size: 0.65rem;
-            }
-            
-            .legend {
-                padding: 0.5rem;
-            }
-            
-            .legend-item {
-                font-size: 0.9rem;
-            }
+            .container { padding: 0.75rem; }
+            h1 { font-size: 1.5rem; }
+            .schedule-header, .schedule-body { grid-template-columns: 55px repeat(7, 1fr); }
+            .schedule-header > div { padding: 0.7rem 0.15rem; font-size: 0.75rem; }
+            .time-slot { padding: 0.4rem 0.15rem; font-size: 0.65rem; }
+            .legend { padding: 0.5rem; }
+            .legend-item { font-size: 0.9rem; }
         }
-
         @media (max-width: 400px) {
-            .schedule-header, .schedule-body {
-                grid-template-columns: 50px repeat(7, 1fr);
-            }
-            
-            .schedule-header > div {
-                padding: 0.6rem 0.1rem;
-                font-size: 0.7rem;
-            }
-            
-            .time-slot {
-                padding: 0.35rem 0.1rem;
-                font-size: 0.6rem;
-            }
+            .schedule-header, .schedule-body { grid-template-columns: 50px repeat(7, 1fr); }
+            .schedule-header > div { padding: 0.6rem 0.1rem; font-size: 0.7rem; }
+            .time-slot { padding: 0.35rem 0.1rem; font-size: 0.6rem; }
         }
-
-        /* Preview frame styles */
         @media print {
-            .capture-preview {
-                border: none !important;
-                box-shadow: none !important;
-                page-break-inside: avoid;
-            }
+            .capture-preview { border: none !important; box-shadow: none !important; page-break-inside: avoid; }
         }
     </style>
     <style id="capture-reset">
-        /* Khi gắn class .capture-mode vào <body>, tắt mọi hiệu ứng làm mờ/làm tối */
-        body.capture-mode,
-        body.capture-mode * {
+        body.capture-mode, body.capture-mode * {
             filter: none !important;
             backdrop-filter: none !important;
             opacity: 1 !important;
-            transform: none !important;   /* loại scale/zoom gây mềm chữ */
+            transform: none !important;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Thời gian biểu</h1>
-            <p class="subtitle">Quản lý thời gian hiệu quả và trực quan</p>
+            <h1>Schedule</h1>
+            <p class="subtitle">Manage your time efficiently and visually</p>
         </header>
 
         <div class="controls">
-            <button class="btn btn-primary" onclick="openAddModal()">
-                ➕ Thêm lịch mới
-            </button>
-            <button class="btn btn-secondary" onclick="exportSchedule()">
-                📥 Xuất lịch
-            </button>
-            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
-                📤 Nhập lịch
-            </button>
+            <button class="btn btn-primary" onclick="openAddModal()">Add Event</button>
+            <button class="btn btn-secondary" onclick="exportSchedule()">Export</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import</button>
             <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importSchedule(event)">
-            <button class="btn btn-secondary" onclick="clearAll()">
-                🗑️ Xóa tất cả
-            </button>
-            <button class="btn btn-secondary" onclick="openCaptureModal()">
-                📸 Chụp lịch
-            </button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+            <button class="btn btn-secondary" onclick="openCaptureModal()">Capture</button>
         </div>
 
         <div id="legend" class="legend" style="display: none;"></div>
@@ -761,14 +545,14 @@
         <div class="schedule-scroll-container">
             <div class="schedule-container">
                 <div class="schedule-header">
-                    <div>Giờ</div>
-                    <div>Thứ 2</div>
-                    <div>Thứ 3</div>
-                    <div>Thứ 4</div>
-                    <div>Thứ 5</div>
-                    <div>Thứ 6</div>
-                    <div>Thứ 7</div>
-                    <div>Chủ nhật</div>
+                    <div>Time</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                    <div>Sun</div>
                 </div>
                 <div id="scheduleBody" class="schedule-body"></div>
             </div>
@@ -778,45 +562,45 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Thêm lịch mới</h2>
-                <button class="close-btn" onclick="closeModal()">✕</button>
+                <h2 class="modal-title" id="modalTitle">Add Event</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <form id="eventForm" onsubmit="saveEvent(event)">
                 <div class="form-group">
-                    <label for="eventTitle">Tiêu đề *</label>
-                    <input type="text" id="eventTitle" required placeholder="VD: Học Toán, Meeting, Gym...">
+                    <label for="eventTitle">Title *</label>
+                    <input type="text" id="eventTitle" required placeholder="e.g., Math, Meeting, Gym...">
                 </div>
 
                 <div class="form-group">
-                    <label for="eventDay">Ngày trong tuần *</label>
+                    <label for="eventDay">Day of Week *</label>
                     <select id="eventDay" required>
-                        <option value="1">Thứ 2</option>
-                        <option value="2">Thứ 3</option>
-                        <option value="3">Thứ 4</option>
-                        <option value="4">Thứ 5</option>
-                        <option value="5">Thứ 6</option>
-                        <option value="6">Thứ 7</option>
-                        <option value="7">Chủ nhật</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                        <option value="7">Sunday</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="eventStartTime">Giờ bắt đầu *</label>
+                    <label for="eventStartTime">Start Time *</label>
                     <input type="time" id="eventStartTime" required step="60">
                 </div>
 
                 <div class="form-group">
-                    <label for="eventEndTime">Giờ kết thúc *</label>
+                    <label for="eventEndTime">End Time *</label>
                     <input type="time" id="eventEndTime" required step="60">
                 </div>
 
                 <div class="form-group">
-                    <label for="eventDescription">Mô tả</label>
-                    <textarea id="eventDescription" placeholder="Thêm ghi chú, địa điểm, người tham gia..."></textarea>
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" placeholder="Add notes, location, attendees..."></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label>Màu sắc</label>
+                    <label>Color</label>
                     <div class="color-picker">
                         <div class="color-option selected" style="background: linear-gradient(135deg, #6366f1, #818cf8)" data-color="#6366f1"></div>
                         <div class="color-option" style="background: linear-gradient(135deg, #10b981, #34d399)" data-color="#10b981"></div>
@@ -828,35 +612,32 @@
                         <div class="color-option" style="background: linear-gradient(135deg, #64748b, #94a3b8)" data-color="#64748b"></div>
                     </div>
                     <div class="custom-color-container">
-                        <span class="custom-color-label">Màu tùy chỉnh:</span>
+                        <span class="custom-color-label">Custom color:</span>
                         <input type="color" id="customColor" class="custom-color-input" value="#6366f1" onchange="handleCustomColorChange(this.value)">
                     </div>
                 </div>
 
                 <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary">Lưu</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
-                    <button type="button" id="deleteBtn" class="btn btn-danger" style="display: none;" onclick="deleteEvent()">Xóa</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="button" id="deleteBtn" class="btn btn-danger" style="display: none;" onclick="deleteEvent()">Delete</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Capture Modal -->
     <div id="captureModal" class="modal capture-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Chụp và chia sẻ lịch</h2>
-                <button class="close-btn" onclick="closeCaptureModal()">✕</button>
+                <h2 class="modal-title">Capture & Share Schedule</h2>
+                <button class="close-btn" onclick="closeCaptureModal()">&times;</button>
             </div>
             <div class="capture-preview">
-                <div class="capture-preview-content" id="capturePreviewContent">
-                    <!-- Preview will be inserted here -->
-                </div>
+                <div class="capture-preview-content" id="capturePreviewContent"></div>
             </div>
             <div class="capture-actions">
-                <button class="btn btn-secondary" onclick="downloadCapture()">📥 Tải ảnh</button>
-                <button class="btn btn-primary" onclick="shareCapture()">📤 Chia sẻ</button>
+                <button class="btn btn-secondary" onclick="downloadCapture()">Download</button>
+                <button class="btn btn-primary" onclick="shareCapture()">Share</button>
             </div>
         </div>
     </div>
@@ -865,15 +646,16 @@
     <script>
         let events = [];
         let currentEditId = null;
+        let lastCaptureDataUrl = null;
         const STORAGE_KEY = 'smartScheduleEvents';
         let customColor = '#6366f1';
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadFromStorage();
             generateTimeSlots();
             renderEvents();
             setupColorPicker();
+            setShortDayLabels();
         });
 
         function generateTimeSlots() {
@@ -884,26 +666,21 @@
                 const timeRow = document.createElement('div');
                 timeRow.style.display = 'contents';
                 
-                // Time label
                 const timeSlot = document.createElement('div');
                 timeSlot.className = 'time-slot';
                 timeSlot.textContent = `${hour.toString().padStart(2, '0')}:00`;
                 timeRow.appendChild(timeSlot);
                 
-                // Day columns
                 for (let day = 1; day <= 7; day++) {
                     const dayColumn = document.createElement('div');
                     dayColumn.className = 'day-column';
                     dayColumn.dataset.hour = hour;
                     dayColumn.dataset.day = day;
                     dayColumn.onclick = (e) => {
-                        if (e.target === dayColumn) {
-                            quickAddEvent(day, hour);
-                        }
+                        if (e.target === dayColumn) quickAddEvent(day, hour);
                     };
                     timeRow.appendChild(dayColumn);
                 }
-                
                 scheduleBody.appendChild(timeRow);
             }
         }
@@ -916,13 +693,8 @@
         }
 
         function renderEvents() {
-            // Clear existing events
             document.querySelectorAll('.event').forEach(e => e.remove());
-            
-            // Group events by subject for legend
             const subjects = new Set();
-            
-            // First, group events by day
             const dayEvents = Array(7).fill().map(() => []);
             
             events.forEach(event => {
@@ -930,44 +702,31 @@
                 dayEvents[event.day - 1].push(event);
             });
             
-            // For each day, process events to handle overlaps
             for (let day = 1; day <= 7; day++) {
                 const dayIndex = day - 1;
                 const eventsForDay = dayEvents[dayIndex];
                 
-                // Sort events by start time
                 eventsForDay.sort((a, b) => {
-                    const aTime = new Date(`1970-01-01T${a.startTime}`);
-                    const bTime = new Date(`1970-01-01T${b.startTime}`);
-                    return aTime - bTime;
+                    return new Date(`1970-01-01T${a.startTime}`) - new Date(`1970-01-01T${b.startTime}`);
                 });
                 
-                // Create a structure to track overlapping events
                 const timeSlots = Array(24).fill().map(() => []);
                 
-                // Assign events to time slots
                 eventsForDay.forEach(event => {
                     const startHour = parseInt(event.startTime.split(':')[0]);
-                    const startMinute = parseInt(event.startTime.split(':')[1]);
                     const endHour = parseInt(event.endTime.split(':')[0]);
                     const endMinute = parseInt(event.endTime.split(':')[1]);
                     
-                    // Calculate the duration in hours (rounded up)
                     let duration = endHour - startHour;
                     if (endMinute > 0) duration += 1;
                     
-                    // Find the maximum overlap count for this event's time range
                     let maxOverlaps = 0;
                     for (let h = startHour; h < startHour + duration; h++) {
-                        if (h < 24) {
-                            maxOverlaps = Math.max(maxOverlaps, timeSlots[h].length);
-                        }
+                        if (h < 24) maxOverlaps = Math.max(maxOverlaps, timeSlots[h].length);
                     }
                     
-                    // Assign the event to all time slots it spans
                     for (let h = startHour; h < startHour + duration; h++) {
                         if (h < 24) {
-                            // Add the event to this hour's slot with its position info
                             timeSlots[h].push({
                                 event: event,
                                 position: maxOverlaps,
@@ -977,7 +736,6 @@
                     }
                 });
                 
-                // Now render events for this day
                 eventsForDay.forEach(event => {
                     const startHour = parseInt(event.startTime.split(':')[0]);
                     const startMinute = parseInt(event.startTime.split(':')[1]);
@@ -989,30 +747,23 @@
                     
                     const dayColumn = document.querySelector(`.day-column[data-hour="${startHour}"][data-day="${day}"]`);
                     if (dayColumn) {
-                        // Find the maximum number of overlapping events in this time range
                         let maxOverlaps = 0;
                         for (let h = startHour; h < endHour + (endMinute > 0 ? 1 : 0); h++) {
                             if (h < 24) {
                                 maxOverlaps = Math.max(maxOverlaps, timeSlots[h].filter(slot => 
-                                    slot.event.id === event.id || 
-                                    isOverlapping(event, slot.event)
+                                    slot.event.id === event.id || isOverlapping(event, slot.event)
                                 ).length);
                             }
                         }
                         
-                        // Find this event's position in the overlapping events
                         let position = 0;
                         for (let h = startHour; h < endHour + (endMinute > 0 ? 1 : 0); h++) {
                             if (h < 24) {
                                 const eventsAtThisHour = timeSlots[h].filter(slot => 
-                                    slot.event.id === event.id || 
-                                    isOverlapping(event, slot.event)
+                                    slot.event.id === event.id || isOverlapping(event, slot.event)
                                 );
-                                
                                 const thisEventIndex = eventsAtThisHour.findIndex(slot => slot.event.id === event.id);
-                                if (thisEventIndex > -1) {
-                                    position = Math.max(position, thisEventIndex);
-                                }
+                                if (thisEventIndex > -1) position = Math.max(position, thisEventIndex);
                             }
                         }
                         
@@ -1021,7 +772,6 @@
                         eventEl.style.top = `${startOffset}px`;
                         eventEl.style.height = `${duration}px`;
                         
-                        // Calculate width and position based on overlaps
                         if (maxOverlaps > 1) {
                             const widthPercent = 100 / maxOverlaps;
                             eventEl.style.width = `calc(${widthPercent}% - 8px)`;
@@ -1031,9 +781,7 @@
                             eventEl.style.right = '4px';
                         }
                         
-                        const color2 = adjustColor(event.color, 20);
-                        eventEl.style.background = `linear-gradient(135deg, ${event.color}, ${color2})`;
-                        
+                        eventEl.style.background = `linear-gradient(135deg, ${event.color}, ${adjustColor(event.color, 20)})`;
                         eventEl.innerHTML = `
                             <div class="event-title">${event.title}</div>
                             <div class="event-time">${event.startTime} - ${event.endTime}</div>
@@ -1044,20 +792,13 @@
                     }
                 });
             }
-            
-            // Update legend
             updateLegend(subjects);
         }
 
         function isOverlapping(event1, event2) {
             if (event1.day !== event2.day) return false;
-            
-            const start1 = new Date(`1970-01-01T${event1.startTime}`);
-            const end1 = new Date(`1970-01-01T${event1.endTime}`);
-            const start2 = new Date(`1970-01-01T${event2.startTime}`);
-            const end2 = new Date(`1970-01-01T${event2.endTime}`);
-            
-            return start1 < end2 && start2 < end1;
+            return new Date(`1970-01-01T${event1.startTime}`) < new Date(`1970-01-01T${event2.endTime}`) && 
+                   new Date(`1970-01-01T${event2.startTime}`) < new Date(`1970-01-01T${event1.endTime}`);
         }
 
         function adjustColor(color, percent) {
@@ -1066,10 +807,7 @@
             const R = (num >> 16) + amt;
             const G = (num >> 8 & 0x00FF) + amt;
             const B = (num & 0x0000FF) + amt;
-            return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-                (B < 255 ? B < 1 ? 0 : B : 255))
-                .toString(16).slice(1);
+            return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
         }
 
         function updateLegend(subjects) {
@@ -1080,13 +818,9 @@
             }
             
             legend.style.display = 'flex';
-            legend.innerHTML = '<span class="legend-title">Chú thích:</span>';
+            legend.innerHTML = '<span class="legend-title">Legend:</span>';
             
-            const uniqueSubjects = Array.from(new Map(
-                Array.from(subjects).map(s => [s.title, s])
-            ).values());
-            
-            uniqueSubjects.forEach(subject => {
+            Array.from(new Map(Array.from(subjects).map(s => [s.title, s])).values()).forEach(subject => {
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 item.innerHTML = `
@@ -1099,12 +833,10 @@
 
         function openAddModal() {
             document.getElementById('modal').classList.add('active');
-            document.getElementById('modalTitle').textContent = 'Thêm lịch mới';
+            document.getElementById('modalTitle').textContent = 'Add New Event';
             document.getElementById('eventForm').reset();
             document.getElementById('deleteBtn').style.display = 'none';
             currentEditId = null;
-            
-            // Reset color selection
             document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
             document.querySelector('.color-option').classList.add('selected');
             document.getElementById('customColor').value = '#6366f1';
@@ -1117,7 +849,7 @@
             
             currentEditId = id;
             document.getElementById('modal').classList.add('active');
-            document.getElementById('modalTitle').textContent = 'Chỉnh sửa lịch';
+            document.getElementById('modalTitle').textContent = 'Edit Event';
             document.getElementById('eventTitle').value = event.title;
             document.getElementById('eventDay').value = event.day;
             document.getElementById('eventStartTime').value = event.startTime;
@@ -1125,15 +857,10 @@
             document.getElementById('eventDescription').value = event.description || '';
             document.getElementById('deleteBtn').style.display = 'block';
             
-            // Set color
             document.querySelectorAll('.color-option').forEach(opt => {
                 opt.classList.remove('selected');
-                if (opt.dataset.color === event.color) {
-                    opt.classList.add('selected');
-                }
+                if (opt.dataset.color === event.color) opt.classList.add('selected');
             });
-            
-            // Set custom color if it's a custom one
             document.getElementById('customColor').value = event.color;
             customColor = event.color;
         }
@@ -1145,7 +872,6 @@
 
         function saveEvent(e) {
             e.preventDefault();
-            
             const selectedColorOption = document.querySelector('.color-option.selected');
             const color = selectedColorOption ? selectedColorOption.dataset.color : customColor;
             
@@ -1173,8 +899,7 @@
 
         function deleteEvent() {
             if (!currentEditId) return;
-            
-            if (confirm('Bạn có chắc muốn xóa lịch này?')) {
+            if (confirm('Are you sure you want to delete this event?')) {
                 events = events.filter(e => e.id !== currentEditId);
                 saveToStorage();
                 renderEvents();
@@ -1195,8 +920,6 @@
 
         function handleCustomColorChange(color) {
             customColor = color;
-            
-            // Check if this color matches any predefined color options
             let matched = false;
             document.querySelectorAll('.color-option').forEach(opt => {
                 if (opt.dataset.color.toLowerCase() === color.toLowerCase()) {
@@ -1205,40 +928,24 @@
                     matched = true;
                 }
             });
-            
-            // If it's a custom color not in our predefined options
-            if (!matched) {
-                document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-            }
+            if (!matched) document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
         }
 
-        function saveToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-        }
-
-        function loadFromStorage() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                events = JSON.parse(stored);
-            }
-        }
+        function saveToStorage() { localStorage.setItem(STORAGE_KEY, JSON.stringify(events)); }
+        function loadFromStorage() { const stored = localStorage.getItem(STORAGE_KEY); if (stored) events = JSON.parse(stored); }
 
         function exportSchedule() {
             const dataStr = JSON.stringify(events, null, 2);
             const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `schedule_${new Date().toISOString().split('T')[0]}.json`;
-            
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.setAttribute('download', `schedule_${new Date().toISOString().split('T')[0]}.json`);
             linkElement.click();
         }
 
         function importSchedule(e) {
             const file = e.target.files[0];
             if (!file) return;
-            
             const reader = new FileReader();
             reader.onload = function(event) {
                 try {
@@ -1247,91 +954,65 @@
                         events = imported;
                         saveToStorage();
                         renderEvents();
-                        alert('Nhập lịch thành công!');
+                        alert('Schedule imported successfully!');
                     } else {
-                        alert('File không đúng định dạng!');
+                        alert('Invalid file format!');
                     }
                 } catch (err) {
-                    alert('Lỗi khi đọc file!');
+                    alert('Error reading file!');
                 }
             };
             reader.readAsText(file);
         }
 
         function clearAll() {
-            if (confirm('Bạn có chắc muốn xóa tất cả lịch?')) {
+            if (confirm('Are you sure you want to clear all events?')) {
                 events = [];
                 saveToStorage();
                 renderEvents();
             }
         }
 
-        // Capture schedule functions
         function openCaptureModal() {
             document.getElementById('captureModal').classList.add('active');
             generateCapturePreview();
         }
 
-        function closeCaptureModal() {
-            document.getElementById('captureModal').classList.remove('active');
-        }
+        function closeCaptureModal() { document.getElementById('captureModal').classList.remove('active'); }
 
-        /** Helper: chụp DOM thật (.schedule-container + legend) rồi vẽ vào canvas vuông 1:1 */
         async function buildSquareCanvasFromDom() {
-            // 0) Bật chế độ "capture" để vô hiệu filter/opacity/transform toàn trang
             document.body.classList.add('capture-mode');
-            await (document.fonts?.ready ?? Promise.resolve()); // chờ font sẵn sàng để render nét
+            await (document.fonts?.ready ?? Promise.resolve());
 
             const schedule = document.querySelector('.schedule-container');
-            const legend   = document.getElementById('legend');
+            const legend = document.getElementById('legend');
 
-            // 1) Dựng stage offscreen (không chịu tác động của layout hiện tại)
             const stage = document.createElement('div');
-            stage.className = 'capture-stage';
             Object.assign(stage.style, {
-                position: 'fixed',
-                left: '-10000px',
-                top: '0',
-                background: '#fff',
-                padding: '24px',
-                borderRadius: '12px',
-                boxSizing: 'border-box',
-                width: (schedule.scrollWidth + 48) + 'px',
-                zIndex: '2147483647',
+                position: 'fixed', left: '-10000px', top: '0', background: '#fff', padding: '24px',
+                borderRadius: '12px', boxSizing: 'border-box', width: (schedule.scrollWidth + 48) + 'px', zIndex: '2147483647'
             });
             document.body.appendChild(stage);
 
-            // (tuỳ chọn) tiêu đề
             const title = document.createElement('h2');
-            title.textContent = 'Thời gian biểu của tôi';
-            Object.assign(title.style, {textAlign: 'center', margin: '0 0 12px 0', color: '#1a1a1a', fontWeight: '700'});
+            title.textContent = 'My Schedule';
+            Object.assign(title.style, { textAlign: 'center', margin: '0 0 12px 0', color: '#1a1a1a', fontWeight: '700' });
             stage.appendChild(title);
 
-            // legend (nếu đang hiển thị)
             if (legend && legend.style.display !== 'none') {
                 const legendClone = legend.cloneNode(true);
                 legendClone.style.margin = '0 0 12px 0';
                 stage.appendChild(legendClone);
             }
 
-            // lịch (clone DOM thật để giữ nguyên CSS)
-            const scheduleClone = schedule.cloneNode(true);
-            stage.appendChild(scheduleClone);
+            stage.appendChild(schedule.cloneNode(true));
 
-            // 2) Chụp với scale cao, phụ thuộc DPI thiết bị -> ảnh sắc nét
-            const dpiScale = Math.max(2, Math.ceil(window.devicePixelRatio)) * 2; // 2–4x
-            const stageCanvas = await html2canvas(stage, {
-                scale: dpiScale,
-                logging: false,
-                backgroundColor: '#ffffff',
-                useCORS: true
-            });
+            const dpiScale = Math.max(2, Math.ceil(window.devicePixelRatio)) * 2;
+            const stageCanvas = await html2canvas(stage, { scale: dpiScale, logging: false, backgroundColor: '#ffffff', useCORS: true });
 
-            // 3) Ép vuông 1:1 (letterbox, không cắt nội dung)
             const size = Math.max(stageCanvas.width, stageCanvas.height);
             const sq = document.createElement('canvas');
-            sq.width = size;
-            sq.height = size;
+            sq.width = size; sq.height = size;
 
             const ctx = sq.getContext('2d');
             ctx.imageSmoothingEnabled = true;
@@ -1344,44 +1025,37 @@
             const s = Math.min(avail / stageCanvas.width, avail / stageCanvas.height);
             const w = Math.round(stageCanvas.width * s);
             const h = Math.round(stageCanvas.height * s);
-            const dx = Math.round((size - w) / 2);
-            const dy = Math.round((size - h) / 2);
-            ctx.drawImage(stageCanvas, dx, dy, w, h);
+            ctx.drawImage(stageCanvas, Math.round((size - w) / 2), Math.round((size - h) / 2), w, h);
 
-            // 4) Dọn dẹp & tắt chế độ capture
             stage.remove();
             document.body.classList.remove('capture-mode');
-
             return sq;
         }
 
-        /** Preview: dùng chính ảnh vuông 1:1 đã build */
         async function generateCapturePreview() {
             const previewContent = document.getElementById('capturePreviewContent');
-            previewContent.innerHTML = 'Đang dựng ảnh…';
+            previewContent.innerHTML = 'Generating image...';
             const canvas = await buildSquareCanvasFromDom();
             lastCaptureDataUrl = canvas.toDataURL('image/png');
 
             const img = new Image();
-            img.alt = 'Preview thời gian biểu (1:1)';
+            img.alt = 'Schedule Preview (1:1)';
             img.src = lastCaptureDataUrl;
             previewContent.innerHTML = '';
             previewContent.appendChild(img);
         }
 
-        /** Tải ảnh: xuất đúng ảnh preview */
         async function downloadCapture() {
             if (!lastCaptureDataUrl) {
                 const canvas = await buildSquareCanvasFromDom();
                 lastCaptureDataUrl = canvas.toDataURL('image/png');
             }
             const a = document.createElement('a');
-            a.download = `thoi-gian-bieu-${new Date().toISOString().slice(0,10)}.png`;
+            a.download = `schedule-${new Date().toISOString().slice(0,10)}.png`;
             a.href = lastCaptureDataUrl;
             a.click();
         }
 
-        /** Chia sẻ: dùng Web Share nếu có, fallback tải xuống */
         async function shareCapture() {
             if (!lastCaptureDataUrl) {
                 const canvas = await buildSquareCanvasFromDom();
@@ -1389,44 +1063,28 @@
             }
             const res = await fetch(lastCaptureDataUrl);
             const blob = await res.blob();
-            const file = new File([blob], `thoi-gian-bieu-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
+            const file = new File([blob], `schedule-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
 
             if (navigator.share && navigator.canShare?.({ files: [file] })) {
-                try { await navigator.share({ title: 'Thời gian biểu của tôi', files: [file] }); }
-                catch { /* người dùng hủy – bỏ qua */ }
+                try { await navigator.share({ title: 'My Schedule', files: [file] }); } catch {}
             } else {
-                const a = document.createElement('a');
-                a.download = file.name;
-                a.href = lastCaptureDataUrl;
-                a.click();
+                downloadCapture();
             }
         }
 
         function setShortDayLabels() {
-            const labels = ['Giờ','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','Chủ nhật'];
-            const shortL = ['Giờ','T2','T3','T4','T5','T6','T7','CN'];
+            const labels = ['Time','Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+            const shortL = ['Time','M','T','W','T','F','S','S'];
             const header = document.querySelectorAll('.schedule-header > div');
             if (header.length === 8) {
-                const useShort = window.innerWidth < 520; // ngưỡng tuỳ chỉnh
+                const useShort = window.innerWidth < 520;
                 for (let i = 0; i < 8; i++) header[i].textContent = useShort ? shortL[i] : labels[i];
             }
         }
 
         window.addEventListener('resize', setShortDayLabels);
-        document.addEventListener('DOMContentLoaded', setShortDayLabels);
-
-        // Close modal when clicking outside
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('modal')) {
-                closeModal();
-            }
-        });
-
-        document.getElementById('captureModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('captureModal')) {
-                closeCaptureModal();
-            }
-        });
+        document.getElementById('modal').addEventListener('click', (e) => { if (e.target === document.getElementById('modal')) closeModal(); });
+        document.getElementById('captureModal').addEventListener('click', (e) => { if (e.target === document.getElementById('captureModal')) closeCaptureModal(); });
     </script>
 </body>
 </html>
