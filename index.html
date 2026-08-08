@@ -13,21 +13,16 @@
 
         :root {
             --primary-dark: #1a1a1a;
-            --secondary-dark: #2d2d2d;
             --tertiary-dark: #404040;
             --primary-light: #fafafa;
             --secondary-light: #f5f5f5;
-            --tertiary-light: #e8e8e8;
             --accent: #6366f1;
             --accent-hover: #4f46e5;
             --text-primary: #1a1a1a;
             --text-secondary: #6b7280;
             --border: #e5e7eb;
             --shadow: rgba(0, 0, 0, 0.08);
-            --success: #10b981;
-            --warning: #f59e0b;
             --danger: #ef4444;
-            --hour-h: clamp(38px, 6.5vh, 64px);
         }
 
         body {
@@ -147,10 +142,6 @@
             display: grid;
             grid-template-columns: 90px repeat(7, 1fr);
             position: relative;
-        }
-
-        .time-slot, .day-column {
-            min-height: var(--hour-h);
         }
 
         .time-slot {
@@ -694,11 +685,11 @@
 
         function renderEvents() {
             document.querySelectorAll('.event').forEach(e => e.remove());
-            const subjects = new Set();
+            const subjects = new Map();
             const dayEvents = Array(7).fill().map(() => []);
             
             events.forEach(event => {
-                subjects.add({ title: event.title, color: event.color });
+                subjects.set(event.title, event.color);
                 dayEvents[event.day - 1].push(event);
             });
             
@@ -720,19 +711,8 @@
                     let duration = endHour - startHour;
                     if (endMinute > 0) duration += 1;
                     
-                    let maxOverlaps = 0;
                     for (let h = startHour; h < startHour + duration; h++) {
-                        if (h < 24) maxOverlaps = Math.max(maxOverlaps, timeSlots[h].length);
-                    }
-                    
-                    for (let h = startHour; h < startHour + duration; h++) {
-                        if (h < 24) {
-                            timeSlots[h].push({
-                                event: event,
-                                position: maxOverlaps,
-                                totalSlots: maxOverlaps + 1
-                            });
-                        }
+                        if (h < 24) timeSlots[h].push(event);
                     }
                 });
                 
@@ -748,22 +728,13 @@
                     const dayColumn = document.querySelector(`.day-column[data-hour="${startHour}"][data-day="${day}"]`);
                     if (dayColumn) {
                         let maxOverlaps = 0;
-                        for (let h = startHour; h < endHour + (endMinute > 0 ? 1 : 0); h++) {
-                            if (h < 24) {
-                                maxOverlaps = Math.max(maxOverlaps, timeSlots[h].filter(slot => 
-                                    slot.event.id === event.id || isOverlapping(event, slot.event)
-                                ).length);
-                            }
-                        }
-                        
                         let position = 0;
                         for (let h = startHour; h < endHour + (endMinute > 0 ? 1 : 0); h++) {
                             if (h < 24) {
-                                const eventsAtThisHour = timeSlots[h].filter(slot => 
-                                    slot.event.id === event.id || isOverlapping(event, slot.event)
-                                );
-                                const thisEventIndex = eventsAtThisHour.findIndex(slot => slot.event.id === event.id);
-                                if (thisEventIndex > -1) position = Math.max(position, thisEventIndex);
+                                const overlapping = timeSlots[h].filter(slot => slot.id === event.id || isOverlapping(event, slot));
+                                maxOverlaps = Math.max(maxOverlaps, overlapping.length);
+                                const eventIndex = overlapping.findIndex(slot => slot.id === event.id);
+                                if (eventIndex > -1) position = Math.max(position, eventIndex);
                             }
                         }
                         
@@ -820,12 +791,12 @@
             legend.style.display = 'flex';
             legend.innerHTML = '<span class="legend-title">Legend:</span>';
             
-            Array.from(new Map(Array.from(subjects).map(s => [s.title, s])).values()).forEach(subject => {
+            subjects.forEach((color, title) => {
                 const item = document.createElement('div');
                 item.className = 'legend-item';
                 item.innerHTML = `
-                    <div class="legend-color" style="background: ${subject.color}"></div>
-                    <span>${subject.title}</span>
+                    <div class="legend-color" style="background: ${color}"></div>
+                    <span>${title}</span>
                 `;
                 legend.appendChild(item);
             });
@@ -1045,11 +1016,15 @@
             previewContent.appendChild(img);
         }
 
-        async function downloadCapture() {
+        async function ensureCapture() {
             if (!lastCaptureDataUrl) {
                 const canvas = await buildSquareCanvasFromDom();
                 lastCaptureDataUrl = canvas.toDataURL('image/png');
             }
+        }
+
+        async function downloadCapture() {
+            await ensureCapture();
             const a = document.createElement('a');
             a.download = `schedule-${new Date().toISOString().slice(0,10)}.png`;
             a.href = lastCaptureDataUrl;
@@ -1057,10 +1032,7 @@
         }
 
         async function shareCapture() {
-            if (!lastCaptureDataUrl) {
-                const canvas = await buildSquareCanvasFromDom();
-                lastCaptureDataUrl = canvas.toDataURL('image/png');
-            }
+            await ensureCapture();
             const res = await fetch(lastCaptureDataUrl);
             const blob = await res.blob();
             const file = new File([blob], `schedule-${new Date().toISOString().slice(0,10)}.png`, { type: 'image/png' });
